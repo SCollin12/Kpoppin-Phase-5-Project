@@ -13,7 +13,8 @@ D - Users should be able to delete their reviews and associated ratings.
  ![image](https://github.com/SCollin12/Kpoppin-Phase-5-Project/assets/123848015/1d66bd88-46bb-488f-9c56-966e3ede41aa)
 
 ## Domain Model
-  ![image](https://github.com/SCollin12/Kpoppin-Phase-5-Project/assets/123848015/183496df-ec90-4afd-a9eb-1643b1829350)
+  ![image](https://github.com/SCollin12/Kpoppin-Phase-5-Project/assets/123848015/8fb90e18-273b-4868-8631-c64d12e3725f)
+
 
 
 ## One-To/ Many-To-Many
