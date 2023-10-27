@@ -13,7 +13,8 @@ D - Users should be able to delete their reviews and associated ratings.
  ![image](https://github.com/SCollin12/Kpoppin-Phase-5-Project/assets/123848015/1d66bd88-46bb-488f-9c56-966e3ede41aa)
 
 ## Domain Model
-  ![image](https://github.com/SCollin12/Kpoppin-Phase-5-Project/assets/123848015/889cdd1c-3088-43f7-b5ff-f6b3edcceca3)
+  ![image](https://github.com/SCollin12/Kpoppin-Phase-5-Project/assets/123848015/183496df-ec90-4afd-a9eb-1643b1829350)
+
 
 ## One-To/ Many-To-Many
 A User can place many Orders, and an Order belongs to a single User.
