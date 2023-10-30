@@ -93,6 +93,3 @@ class Review(db.Model, SerializerMixin):
 # the single_parent=True flag to the relationship between Review and User. 
 #This flag indicates that a particular User object can be referenced by only a single Review object at a time,
 #which allows the delete-orphan cascade to work in this direction.
-
-
-
