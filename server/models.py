@@ -2,10 +2,13 @@ from sqlalchemy.orm import validates
 from sqlalchemy_serializer import SerializerMixin
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy import CheckConstraint
+from sqlalchemy.ext.hybrid import hybrid_property
 
 # from app import bcrypt
-
+from flask_bcrypt import Bcrypt
 from config import db
+
+bcrypt = Bcrypt()
 
 # Models go here!
 
@@ -21,27 +24,34 @@ class User(db.Model, SerializerMixin):
 
     serialize_rules = ('-orders',)
 
-    # @validates('username')
-    # def validate_username(self, key, username):
-    #     if not username:
-    #         raise ValueError("Username must be present")
-    #     return username
+    @validates('username')
+    def validate_username(self, key, username):
+        if not username:
+            raise ValueError("Username must be present")
+        return username
 
-    # @hybrid_property
-    # def password_hash(self):
-    #     return self._password_hash
+    @hybrid_property
+    def password_hash(self):
+        return self._password_hash
 
-    # @password_hash.setter
-    # def password_hash(self, password):
-    #     if type(password) is str and len(password) > 6:
-    #         password_hash = bcrypt.generate_password_hash(password.encode('utf-8'))
-    #         self._password_hash = password_hash.decode('utf-8')
-    #     else:
-    #         raise ValueError("Password Invalid")
+    @password_hash.setter
+    def password_hash(self, password):
+        if type(password) is str and len(password) > 6:
+            password_hash = bcrypt.generate_password_hash(password.encode('utf-8'))
+            self._password_hash = password_hash.decode('utf-8')
+        else:
+            raise ValueError("Password Invalid")
     
-    # def authenticate(self, password):
-    #     from app import bcrypt
-    #     return bcrypt.check_password_hash(self._password_hash, password.encode('utf-8'))
+    def authenticate(self, password):
+        from app import bcrypt
+        return bcrypt.check_password_hash(self._password_hash, password.encode('utf-8'))
+
+    @validates('email')
+    def validate_email(self, key, email):
+        if not email:
+            raise ValueError("Email must be present")
+        return email
+
 
 class Product(db.Model, SerializerMixin):
     __tablename__ = 'products'
@@ -88,14 +98,8 @@ class Review(db.Model, SerializerMixin):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     user = db.relationship('User', backref='reviews')
     product = db.relationship('Product', backref='reviews', single_parent=True, cascade='all, delete-orphan')  # Set single_parent=True
-    serialize_rules = ('-user.reviews', '-products.reviews').
+    serialize_rules = ('-user.reviews', '-products.reviews',)
 
 # the single_parent=True flag to the relationship between Review and User. 
 #This flag indicates that a particular User object can be referenced by only a single Review object at a time,
 #which allows the delete-orphan cascade to work in this direction.
-<<<<<<< HEAD
-=======
-
-
-
->>>>>>> 7cfcd3ed1106943299458391accac4fab78d1ff9
