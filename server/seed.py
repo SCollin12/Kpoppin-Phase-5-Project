@@ -2,7 +2,7 @@
 
 
 # Remote library imports
-from faker import Faker  # Import Faker
+from faker import Faker  
 
 
 # Standard library imports
@@ -16,10 +16,9 @@ from models import User, Order, Product, Order_product, Review
 
 from flask_bcrypt import Bcrypt
 
-# Create an instance of Faker
+
 fake = Faker()
 
-# Rest of your code...
 
 def create_users():
     users = []
@@ -147,6 +146,10 @@ def create_kpop_merchandise():
     )
     kpop_merchandise.append(kpop_10)
 
+    # for kpop_item in kpop_merchandise:
+        # db.session.add(kpop_item)
+
+    # db.session.commit()
     return kpop_merchandise
 
 def create_anime_merchandise():
@@ -262,6 +265,10 @@ def create_anime_merchandise():
     )
     anime_merchandise.append(anime_10)
 
+    # for anime_item in anime_merchandise:
+    #     db.session.add(anime_item)
+
+    # db.session.commit()
     return anime_merchandise
 
 
@@ -272,33 +279,23 @@ def create_orders(users, products):
     orders = []
 
     for _ in range(10):
-    user = rc(users)
-    status = rc(['In Progress', 'Completed', 'Cancelled', 'Shipped'])
-    o = Order(user=user, status=status)
-    db.session.add(o)
-    db.session.commit()  # Commit the Order instance to get a valid ID
+        user = rc(users)
+        status = rc(['In Progress', 'Completed', 'Cancelled', 'Shipped'])
+        o = Order(user=user, status=status)
+        db.session.add(o)
+        db.session.commit()  # Commit the Order instance to get a valid ID
 
-    for _ in range(randint(1, 5)):  # Each order can contain 1 to 5 products
-        product = rc(products)
-        if product.id is not None:
-            op = Order_product(order_id=o.id, product_id=product.id)
-            db.session.add(op)
-        else:
-            print(f"Invalid product ID: {product.id}")
-
+        for _ in range(randint(1, 5)):  # Each order can contain 1 to 5 products
+            product = rc(products)
+            if product.id is not None:
+                op = Order_product(order_id=o.id, product_id=product.id)
+                db.session.add(op)
+            else:
+                print(f"Invalid product ID: {product.id}")
 
         orders.append(o)
 
     return orders
-
-
-
-
-
-
-
-
-
 
 def create_reviews(users, products):
     reviews = []
@@ -327,17 +324,174 @@ if __name__ == '__main__':
         print("Starting seed...")
         print("Seeding Users")
         seed_users = create_users()
+        db.session.add_all(seed_users)
+        db.session.commit()
         print("Seeding Products")
         seed_products = create_kpop_merchandise() + create_anime_merchandise()
+        db.session.add_all(seed_products)
+        db.session.commit()
         print("Seeding Orders")
         seed_orders = create_orders(seed_users, seed_products)
+        db.session.add_all(seed_orders)
+        db.session.commit()
         print("Seeding Reviews")
         seed_reviews = create_reviews(seed_users, seed_products)
-
-        db.session.add_all(seed_users)
-        db.session.add_all(seed_products)
-        db.session.add_all(seed_orders)
         db.session.add_all(seed_reviews)
         db.session.commit()
 
 
+
+
+
+
+
+
+# Here is the first version of the seed.py file 
+#I had previously, 
+#it ran and seeded without error:
+
+# #!/usr/bin/env python3
+
+
+# # Remote library imports
+# from faker import Faker  # Import Faker
+
+
+# # Standard library imports
+# from random import randint, choice as rc
+# from datetime import datetime, timedelta
+
+# # Local imports
+# from app import app
+# from models import db
+# from models import User, Order, Product, Order_product, Review
+
+# from flask_bcrypt import Bcrypt
+
+# # Create an instance of Faker
+# fake = Faker()
+
+# # Rest of your code...
+
+# def create_users():
+#     users = []
+
+#     for _ in range(10):
+#         u = User(
+#             username = fake.name(),
+#             email = fake.email(),
+#             password_hash= fake.password(length=12)
+#         )
+#         users.append(u)
+#     return users
+
+
+
+
+# def create_products():
+#     products = []
+#     for _ in range(10):
+#         # Set the start date to January 1, 2000
+#         start_datetime = datetime(2000, 1, 1)
+
+#         # Set the end date to December 31, 2024
+#         end_datetime = datetime(2024, 12, 31)
+
+#         # Generate a random date within the specified date range
+#         random_date = fake.date_between(start_date=start_datetime, end_date=end_datetime)
+
+#         # Explicitly set the type to 'kpop' for Kpop products
+#         p = Product(
+#             name=fake.name(),
+#             description=fake.sentence(),
+#             price=randint(1, 50),
+#             release_date=random_date,  # Use the generated random date
+#             image_url= fake.image_url(),
+#             type='kpop'
+#         )
+#         products.append(p)
+
+#     for _ in range(10):
+#         # Set the start date to January 1, 2000
+#         start_datetime = datetime(2000, 1, 1)
+
+#         # Set the end date to December 31, 2024
+#         end_datetime = datetime(2024, 12, 31)
+
+#         # Generate a random date within the specified date range
+#         random_date = fake.date_between(start_date=start_datetime, end_date=end_datetime)
+
+#         # Explicitly set the type to 'anime' for Anime products
+#         p = Product(
+#             name=fake.name(),
+#             description=fake.sentence(),
+#             price=randint(1, 50),
+#             release_date=random_date,  # Use the generated random date
+#             image_url=fake.image_url(),
+#             type='anime'
+#         )
+#         products.append(p)
+
+#     return products
+
+
+
+
+# def create_orders(users, products):
+#     orders = []
+
+#     for _ in range(10):
+#         user = rc(users)
+#         status = rc(['In Progress', 'Completed', 'Cancelled', 'Shipped'])
+#         o = Order(user=user, status=status)
+#         db.session.add(o)
+#         db.session.flush()
+
+#         for _ in range(randint(1, 5)):  # Each order can contain 1 to 5 products
+#             product = rc(products)
+#             op = Order_product(order=o, product=product)
+#             db.session.add(op)
+        
+#         orders.append(o)
+    
+#     return orders
+
+# def create_reviews(users, products):
+#     reviews = []
+
+#     for _ in range(20):  
+#         user = rc(users)
+#         product = rc(products)
+#         review = Review(
+#             comments=fake.paragraph(),
+#             user=user,
+#             product=product
+#         )
+#         reviews.append(review)
+
+#     return reviews
+
+
+# if __name__ == '__main__':
+#     with app.app_context():
+#         print("clearing the database...")
+#         db.drop_all()
+
+#         print("Creating tables...")
+#         db.create_all()
+
+#         print("Starting seed...")
+#         print("Seeding Users")
+#         seed_users = create_users()
+#         print("Seeding Products")
+#         seed_products = create_products()
+#         print("Seeding Orders")
+#         seed_orders = create_orders(seed_users, seed_products)
+#         print("Seeding Reviews")
+#         seed_reviews = create_reviews(seed_users, seed_products)
+
+#         db.session.add_all(seed_users)
+#         db.session.add_all(seed_products)
+#         db.session.add_all(seed_orders)
+#         db.session.add_all(seed_reviews)
+#         db.session.commit()
