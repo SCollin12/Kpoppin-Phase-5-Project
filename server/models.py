@@ -22,7 +22,7 @@ class User(db.Model, SerializerMixin):
 
     orders= db.relationship('Order', backref='user', cascade='all, delete-orphan')
 
-    serialize_only = ('id', 'username', 'email')
+    serialize_only = ('id', 'username', 'email', 'password_hash')
 
 
 
@@ -76,9 +76,13 @@ class Product(db.Model, SerializerMixin):
 
     @validates('price')
     def validate_price(self, key, price):
-        if price < 0 or price > 50:  
-            raise ValueError("Price must be between 0 and 50")
-        return price
+        try:
+            price = float(price)
+            if price < 0 or price > 50:
+                raise ValueError("Price must be between 0 and 50")
+        except ValueError:
+            raise ValueError("Invalid price format")
+
 
 
     
@@ -125,18 +129,18 @@ class Order_product(db.Model, SerializerMixin):
 
 
 
-    @validates('order_id', 'product_id')
-    def validate_order_product_ids(self, key, value):
-        if not value or value < 1:
-            raise ValueError(f"{key.capitalize()} must be a positive integer")
+    # @validates('order_id', 'product_id')
+    # def validate_order_product_ids(self, key, value):
+    #     if not value or value < 1:
+    #         raise ValueError(f"{key.capitalize()} must be a positive integer")
 
     
-        if key == 'order_id' and not Order.query.get(value):
-            raise ValueError("Order with the specified ID does not exist")
-        elif key == 'product_id' and not Product.query.get(value):
-            raise ValueError("Product with the specified ID does not exist")
+    #     if key == 'order_id' and not Order.query.get(value):
+    #         raise ValueError("Order with the specified ID does not exist")
+    #     elif key == 'product_id' and not Product.query.get(value):
+    #         raise ValueError("Product with the specified ID does not exist")
 
-            return value
+    #         return value
 
 
 
@@ -153,17 +157,17 @@ class Review(db.Model, SerializerMixin):
     serialize_only = ('id', 'comments', 'user_id', 'product_id')
 
 
-    @validates('product_id')
-    def validate_workout(self, key, product_id):
-        if not product_id or product_id < 1:
-            raise ValueError("Product ID must be present and greater than 0")
-        return product_id
+    # @validates('product_id')
+    # def validate_workout(self, key, product_id):
+    #     if not product_id or product_id < 1:
+    #         raise ValueError("Product ID must be present and greater than 0")
+    #     return product_id
 
-    @validates('user_id')
-    def validate_user(self, key, user_id):
-        if not user_id or user_id < 1:
-            raise ValueError("User ID must be present and greater than 0")
-        return user_id
+    # @validates('user_id')
+    # def validate_user(self, key, user_id):
+    #     if not user_id or user_id < 1:
+    #         raise ValueError("User ID must be present and greater than 0")
+    #     return user_id
         
     @validates('comments')
     def validate_comments(self, key, comments):
