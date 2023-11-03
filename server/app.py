@@ -326,6 +326,23 @@ class Login(Resource):
 
 api.add_resource(Login, '/login')
 
+class Signup(Resource):
+    def post(self):
+        try:
+            new_user = User(
+                username = request.json['username'],
+                email = request.json['email'],
+                password_hash = request.json['password'],
+            )
+            db.session.add(new_user)
+            db.session.commit()
+            session['user_id'] = new_user.id
+            return make_response(new_user.to_dict(rules=('-_password_hash',)), 201)
+        except ValueError:
+            return make_response({"error": "User not created"}, 400)
+
+api.add_resource(Signup, '/signup')
+
 class Logout(Resource):
     def delete(self):
         session['user_id'] = None
