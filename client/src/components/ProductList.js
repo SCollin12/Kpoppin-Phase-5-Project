@@ -1,22 +1,31 @@
-import React from 'react';
-import { Card, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
 
+const ProductList = () => {
+  const [products, setProducts] = useState([]);
 
-const ProductList = ({ products, onProductSelect }) => {
+  useEffect(() => {
+    fetch('/products') 
+      .then((response) => response.json())
+      .then((data) => {
+        setProducts(data);
+      });
+  }, []);
+
   return (
     <div>
-      {products.map((product) => (
-        <Card
-          key={product.id}
-          title={product.name}
-          extra={<Button onClick={() => onProductSelect(product)}>View Details</Button>}
-        >
-          <p>Description: {product.description}</p>
-          <p>Price: ${product.price}</p>
-        </Card>
-      ))}
+      <h2>Products</h2>
+      <ul>
+        {products.map((product) => (
+          <li key={product.id}>
+            {product.name} - {product.price}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
 
 export default ProductList;
+
+
+
