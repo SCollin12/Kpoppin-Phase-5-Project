@@ -61,7 +61,7 @@ class Product(db.Model, SerializerMixin):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
     description = db.Column(db.String)
-    price = db.Column(db.Numeric(10, 2), nullable=False)
+    price = db.Column(db.Numeric (10 ,2))
     release_date = db.Column(db.Date)  # date values should be in the format of 'YYYY-MM-DD'
     image_url = db.Column(db.String)
     type = db.Column(db.String(10), CheckConstraint("type IN ('anime', 'kpop')"), nullable=False)
@@ -76,12 +76,13 @@ class Product(db.Model, SerializerMixin):
 
     @validates('price')
     def validate_price(self, key, price):
-        try:
             price = float(price)
-            if price < 0 or price > 50:
+            if  0.00 < price <= 50.00:
+                
+                return price    
+            else:  
                 raise ValueError("Price must be between 0 and 50")
-        except ValueError:
-            raise ValueError("Invalid price format")
+
 
 
 
@@ -174,6 +175,7 @@ class Review(db.Model, SerializerMixin):
         if comments is None or len(comments) < 10:
             raise ValueError("Comment must be present and at least 10 characters long")
         return comments
+
 
 
 

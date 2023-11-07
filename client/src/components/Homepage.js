@@ -1,17 +1,13 @@
-// import React, { useState } from 'react';
-// import KpopProducts from './KpopProducts'; // Import K-pop product component
-// import AnimeProducts from './AnimeProducts'; // Import anime product component
+import React from 'react';
 
-// const Homepage = () => {
-//   const [showKpop, setShowKpop] = useState(true);
+const Homepage = () => {
+  return (
+    <div>
+      <h2>Welcome to Your E-Commerce Store</h2>
+      {/* Add featured products or other content here */}
+    </div>
+  );
+};
 
-//   return (
-//     <div>
-//       <button onClick={() => setShowKpop(true)}>Show K-pop Products</button>
-//       <button onClick={() => setShowKpop(false)}>Show Anime Products</button>
-//       {showKpop ? <KpopProducts /> : <AnimeProducts />}
-//     </div>
-//   );
-// };
+export default Homepage;
 
-// export default Homepage;

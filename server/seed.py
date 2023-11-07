@@ -42,7 +42,7 @@ def create_kpop_merchandise():
         description="BTS's 2020 album featuring hit songs like 'ON' and 'Black Swan'.",
         price=25.99,
         release_date=date(2020, 2 , 21),
-        image_url="https://example.com/bts-map-of-the-soul-7.jpg",
+        image_url="https://ibighit.com/bts/images/bts/discography/map_of_the_soul-7/img01.jpg",
         type='kpop'
     )
     kpop_merchandise.append(kpop_1)
@@ -53,7 +53,7 @@ def create_kpop_merchandise():
         description="BLACKPINK's first full-length album with tracks like 'Lovesick Girls'.",
         price=29.99,
         release_date=date(2020 , 10 , 2),
-        image_url="https://example.com/blackpink-the-album.jpg",
+        image_url="https://upload.wikimedia.org/wikipedia/en/f/f2/BLACKPINK-_The_Album.png",
         type='kpop'
     )
     kpop_merchandise.append(kpop_2)
@@ -64,7 +64,7 @@ def create_kpop_merchandise():
         description="TWICE's 2nd full album with the title track 'I Can't Stop Me'.",
         price=27.99,
         release_date=date(2020 , 10 ,26),
-        image_url="https://example.com/twice-eyes-wide-open.jpg",
+        image_url="https://upload.wikimedia.org/wikipedia/en/9/90/Twice_-_Eyes_Wide_Open.png",
         type='kpop'
     )
     kpop_merchandise.append(kpop_3)
@@ -75,7 +75,7 @@ def create_kpop_merchandise():
         description="EXO's special album with a powerful title track of the same name.",
         price=23.99,
         release_date=date(2021, 6, 7),
-        image_url="https://example.com/exo-dont-fight-the-feeling.jpg",
+        image_url="https://upload.wikimedia.org/wikipedia/en/5/5d/Exo_-_Don%27t_Fight_the_Feeling.png",
         type='kpop'
     )
     kpop_merchandise.append(kpop_4)
@@ -86,7 +86,7 @@ def create_kpop_merchandise():
         description="IU's 5th studio album, a great addition to any Kpop collection.",
         price=24.99,
         release_date=date(2021, 3, 25),
-        image_url="https://example.com/iu-lilac.jpg",
+        image_url="https://s3.amazonaws.com/thumbnails.thecrimson.com/photos/2021/04/05/201800_1349687.jpeg.1500x1500_q95_crop-smart_upscale.jpg",
         type='kpop'
     )
     kpop_merchandise.append(kpop_5)
@@ -97,7 +97,7 @@ def create_kpop_merchandise():
         description="Stray Kids' repackaged album with tracks like 'Back Door'.",
         price=26.99,
         release_date=date(2020, 9 , 14),
-        image_url="https://example.com/stray-kids-in-life.jpg",
+        image_url="https://www.evepinkshop.com/cdn/shop/products/SKZ_9f6a8f1c-c8f7-4e21-83c6-321eb3b9a482_900x.jpg?v=1652395475",
         type='kpop'
     )
     kpop_merchandise.append(kpop_6)
@@ -108,7 +108,7 @@ def create_kpop_merchandise():
         description=" Idalis's Favorite Group; ATEEZ's 6th EP with hit songs like 'Fireworks (I'm The One)'.",
         price=22.99,
         release_date=date(2021, 3, 1),
-        image_url="https://example.com/ateez-zero-fever-part-2.jpg",
+        image_url="https://upload.wikimedia.org/wikipedia/en/thumb/5/50/Ateez_Fever_Part_2.jpg/220px-Ateez_Fever_Part_2.jpg",
         type='kpop'
     )
     kpop_merchandise.append(kpop_7)
@@ -119,7 +119,7 @@ def create_kpop_merchandise():
         description="Mamamoo's 10th mini-album featuring 'Aya & Dingga Dingga'.",
         price=19.99,
         release_date=date(2021, 11, 3),
-        image_url="https://example.com/mamamoo-travel.jpg",
+        image_url="https://upload.wikimedia.org/wikipedia/en/6/65/Mamamoo_-_Travel.jpg",
         type='kpop'
     )
     kpop_merchandise.append(kpop_8)
@@ -130,7 +130,7 @@ def create_kpop_merchandise():
         description="NCT 127's 3rd full-length album featuring the title track 'Sticker'.",
         price=27.99,
         release_date=date(2021, 9 , 17),
-        image_url="https://example.com/nct-127-sticker.jpg",
+        image_url="https://upload.wikimedia.org/wikipedia/en/1/12/NCT_127_-_Sticker.png",
         type='kpop'
     )
     kpop_merchandise.append(kpop_9)
@@ -141,15 +141,16 @@ def create_kpop_merchandise():
         description="GOT7's 4th studio album with the title track 'Last Piece'.",
         price=25.99,
         release_date=date(2020 , 11, 30),
-        image_url="https://example.com/got7-last-piece.jpg",
+        image_url="https://upload.wikimedia.org/wikipedia/en/c/c6/BreathofLovecover.jpg",
         type='kpop'
     )
     kpop_merchandise.append(kpop_10)
 
-    # for kpop_item in kpop_merchandise:
-        # db.session.add(kpop_item)
+    for kpop_item in kpop_merchandise:
+        print(f"Adding K-Pop Product: {kpop_item.name} - Price: {kpop_item.price}")
+        db.session.add(kpop_item)
 
-    # db.session.commit()
+    db.session.commit()
     return kpop_merchandise
 
 def create_anime_merchandise():
@@ -161,7 +162,7 @@ def create_anime_merchandise():
         description="The first volume of the popular manga series One Piece by Eiichiro Oda.",
         price=12.99,
         release_date=date(1997, 12, 24),
-        image_url="https://example.com/one-piece-manga.jpg",
+        image_url="https://store.crunchyroll.com/on/demandware.static/-/Sites-crunchyroll-master-catalog/default/dwd48b860f/rightstuf/9781569319017_manga-One-Piece-Graphic-Novel-1-Romance-Dawn-East-Blue-primary.jpg",
         type='anime'
     )
     anime_merchandise.append(anime_1)
@@ -172,7 +173,7 @@ def create_anime_merchandise():
         description="A stylish t-shirt featuring characters from Naruto Shippuden anime.",
         price=19.99,
         release_date=date(2021, 5, 10),
-        image_url="https://example.com/naruto-tshirt.jpg",
+        image_url="https://m.media-amazon.com/images/I/71d2M+WWDHL._AC_UY1000_.jpg",
         type='anime'
     )
     anime_merchandise.append(anime_2)
@@ -183,7 +184,7 @@ def create_anime_merchandise():
         description="An adorable poster of the iconic Studio Ghibli film My Neighbor Totoro.",
         price=8.99,
         release_date=date(1988, 4, 16),
-        image_url="https://example.com/totoro-poster.jpg",
+        image_url="https://sothebys-md.brightspotcdn.com/dims4/default/d9297e0/2147483647/strip/true/crop/5154x7040+0+0/resize/800x1093!/quality/90/?url=http%3A%2F%2Fsothebys-brightspot.s3.amazonaws.com%2Fmedia-desk%2Fe1%2Fbe%2F0dc5489b41e0b9bb590b4421d75c%2Ftonari-no-totoro-my-neighbor-totoro-japanese-movie-poster.jpg",
         type='anime'
     )
     anime_merchandise.append(anime_3)
@@ -194,7 +195,7 @@ def create_anime_merchandise():
         description="A detailed statue of Goku from the Dragon Ball Z series.",
         price=39.99,
         release_date=date(2019 , 7 , 2),
-        image_url="https://example.com/goku-statue.jpg",
+        image_url="https://m.media-amazon.com/images/I/41tMO+4FY7L._AC_.jpg",
         type='anime'
     )
     anime_merchandise.append(anime_4)
@@ -205,7 +206,7 @@ def create_anime_merchandise():
         description="A hoodie featuring the iconic Wings of Freedom symbol from Attack on Titan.",
         price=29.99,
         release_date=date(2020, 9 , 15),
-        image_url="https://example.com/aot-hoodie.jpg",
+        image_url="https://i.ebayimg.com/images/g/r3wAAOSwUOBdKRb~/s-l1200.webp",
         type='anime'
     )
     anime_merchandise.append(anime_5)
@@ -216,7 +217,7 @@ def create_anime_merchandise():
         description="A comfy pajama set with characters from the Demon Slayer anime.",
         price=32.99,
         release_date=date(2021, 12, 3),
-        image_url="https://example.com/demon-slayer-pajama.jpg",
+        image_url="https://target.scene7.com/is/image/Target/GUEST_aaf97321-082b-4d0b-892c-91d7004a858b?wid=488&hei=488&fmt=pjpeg",
         type='anime'
     )
     anime_merchandise.append(anime_6)
@@ -227,7 +228,7 @@ def create_anime_merchandise():
         description="A cute Sailor Moon-themed hat for all Sailor Scouts out there.",
         price=14.99,
         release_date=date(2020, 3 , 18),
-        image_url="https://example.com/sailor-moon-hat.jpg",
+        image_url="https://target.scene7.com/is/image/Target/GUEST_47aaca82-3895-4b95-9c8d-90ee8b9d189c?wid=488&hei=488&fmt=pjpeg",
         type='anime'
     )
     anime_merchandise.append(anime_7)
@@ -238,7 +239,7 @@ def create_anime_merchandise():
         description="A collectible figurine of Edward Elric from Fullmetal Alchemist.",
         price=27.99,
         release_date=date(2018, 11, 21),
-        image_url="https://example.com/fma-figurine.jpg",
+        image_url="https://images.goodsmile.info/cgm/images/product/20200907/10021/74014/large/df88b824bc351e31dab4fdaae68a5e00.jpg",
         type='anime'
     )
     anime_merchandise.append(anime_8)
@@ -249,7 +250,7 @@ def create_anime_merchandise():
         description="The classic manga series Neon Genesis Evangelion by Yoshiyuki Sadamoto.",
         price=14.99,
         release_date=date(1995, 12, 23),
-        image_url="https://example.com/evangelion-manga.jpg",
+        image_url="https://m.media-amazon.com/images/I/81-uMgCK6zL._AC_UF1000,1000_QL80_.jpg",
         type='anime'
     )
     anime_merchandise.append(anime_9)
@@ -260,15 +261,15 @@ def create_anime_merchandise():
         description="A poster featuring Saitama from the popular anime One Punch Man.",
         price=7.99,
         release_date=date(2015, 4 ,9),
-        image_url="https://example.com/one-punch-man-poster.jpg",
+        image_url="https://m.media-amazon.com/images/I/717tGEHvPNL._AC_UF894,1000_QL80_.jpg",
         type='anime'
     )
     anime_merchandise.append(anime_10)
 
-    # for anime_item in anime_merchandise:
-    #     db.session.add(anime_item)
+    for anime_item in anime_merchandise:
+        db.session.add(anime_item)
 
-    # db.session.commit()
+    db.session.commit()
     return anime_merchandise
 
 
@@ -283,9 +284,15 @@ def create_orders(users, products):
         status = rc(['In Progress', 'Completed', 'Cancelled', 'Shipped'])
         o = Order(user=user, status=status)
         db.session.add(o)
-        db.session.commit()  # Commit the Order instance to get a valid ID
+        
+        # Commit the Order instance to get a valid ID
+        try:
+            db.session.commit()
+        except Exception as e:
+            db.session.rollback()
+            print(f"Error creating order: {str(e)}")
 
-        for _ in range(randint(1, 5)):  # Each order can contain 1 to 5 products
+        for _ in range(randint(1, 5)):
             product = rc(products)
             if product.id is not None:
                 op = Order_product(order_id=o.id, product_id=product.id)
@@ -295,27 +302,32 @@ def create_orders(users, products):
 
         orders.append(o)
 
+    db.session.commit()  # Commit once after all orders are added
+
     return orders
 
 def create_reviews(users, products):
     reviews = []
 
-    for _ in range(20):  
+    for _ in range(20):
         user = rc(users)
         product = rc(products)
-        review = Review(
-            comments=fake.paragraph(),
-            user=user,
-            product=product
-        )
-        reviews.append(review)
+
+        if user is not None and product is not None:
+            review = Review(
+                comments=fake.paragraph(),
+                user=user,
+                product=product
+            )
+            reviews.append(review)
+        else:
+            print(f"Invalid user or product: {user}, {product}")
 
     return reviews
 
-
 if __name__ == '__main__':
     with app.app_context():
-        print("clearing the database...")
+        print("Clearing the database...")
         db.drop_all()
 
         print("Creating tables...")
@@ -333,12 +345,12 @@ if __name__ == '__main__':
         print("Seeding Orders")
         seed_orders = create_orders(seed_users, seed_products)
         db.session.add_all(seed_orders)
+        # Commit once after all orders are added
         db.session.commit()
         print("Seeding Reviews")
         seed_reviews = create_reviews(seed_users, seed_products)
         db.session.add_all(seed_reviews)
         db.session.commit()
-
 
 
 

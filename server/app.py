@@ -3,7 +3,7 @@
 # Standard library imports
 
 # Remote library imports
-from models import *
+from models import User, Product, Order, Order_product, Review
 from flask_restful import Api, Resource
 from flask import Flask, make_response, jsonify, request, session
 from flask_migrate import Migrate
@@ -46,7 +46,6 @@ class Users(Resource):
         users = [user.to_dict(only=('id', 'username', 'email')) for user in User.query.all()]
         return make_response(users, 200)
 
-
     def post(self):
         try:
             username = request.json.get('username')
@@ -55,6 +54,10 @@ class Users(Resource):
 
             if not username or not email or not password:
                 return {"errors": ["Missing username, email, or password"]}, 400
+
+            # Check if the username is already taken
+            if User.query.filter_by(username=username).first():
+                return {"errors": ["Username already taken"]}, 400
 
             # Hash the password
             password_hash = bcrypt.generate_password_hash(password.encode('utf-8')).decode('utf-8')
@@ -67,6 +70,7 @@ class Users(Resource):
             return {"errors": [str(e)]}, 400
 
 api.add_resource(Users, '/users')
+
 
 
 class UsersById(Resource):
@@ -107,16 +111,24 @@ class Products(Resource):
 
     def post(self):
         try:
-            name = request.json['name']
-            description = request.json['description']
-            price = request.json['price']
+            data = request.json
+
+            # Check if all required fields are present in the request data
+            required_fields = ['name', 'description', 'price', 'release_date', 'image_url', 'type']
+            for field in required_fields:
+                if field not in data:
+                    return {"errors": [f"Missing '{field}' field in the request data"]}, 400
+
+            name = data['name']
+            description = data['description']
+            price = data['price']
             
             # Convert the release_date string to a Python date object
-            release_date_str = request.json['release_date']
+            release_date_str = data['release_date']
             release_date = parse(release_date_str).date()
 
-            image_url = request.json['image_url']
-            type = request.json['type']
+            image_url = data['image_url']
+            product_type = data['type']
 
             new_product = Product(
                 name=name,
@@ -124,15 +136,17 @@ class Products(Resource):
                 price=price,
                 release_date=release_date,
                 image_url=image_url,
-                type=type
+                type=product_type
             )
+
             db.session.add(new_product)
             db.session.commit()
+
             return make_response(new_product.to_dict(), 201)
-        except ValueError:
-            return {"errors": ["Validation errors"]}, 400
-
-
+        except KeyError as e:
+            return {"errors": [f"KeyError: {str(e)} - Required field missing in the request data"]}, 400
+        except Exception as e:
+            return {"errors": [str(e)]}, 400
 
 api.add_resource(Products, '/products')
 
@@ -150,13 +164,20 @@ class ProductsById(Resource):
             return make_response({"error": ["Product not found"]}, 404)
         try:
             for attr in request.json:
-                setattr(product, attr, request.json[attr])
+                if attr == 'release_date':
+                    date_str = request.json[attr]
+                    date_object = datetime.strptime(date_str, '%Y-%m-%d') # adjust the format as needed
+                    setattr(product, attr, date_object)
+                else:
+                    setattr(product, attr, request.json[attr])
+                
             db.session.add(product)
             db.session.commit()
             product_to_dict = product.to_dict(only = ('id', 'name', 'description', 'price', 'release_date', 'image_url', 'type'))
             return make_response(product_to_dict, 202)
-        except ValueError:
-            return make_response({"errors": ["Validation errors"]}, 400)
+        except ValueError as e:
+            error_message = {"errors": ["Validation errors", str(e)]}
+            return make_response(jsonify(error_message), 400)
 
     def delete(self, id):
         product = Product.query.filter_by(id=id).first()
@@ -173,14 +194,31 @@ class Orders(Resource):
         orders = [order.to_dict(only = ('id', 'user_id', 'status', 'order_products')) for order in Order.query.all()]
         return make_response(orders, 200)
 
-    def post(self):
+def post(self):
         try:
-            new_order = Order()
+        
+            user_id = request.json.get('user_id')
+            product_ids = request.json.get('product_ids')
+
+            if not user_id or not product_ids:
+                return {"errors": ["Missing user_id or product_ids"]}, 400
+
+    
+            new_order = Order(user_id=user_id)
             db.session.add(new_order)
+
+            for product_id in product_ids:
+                product = Product.query.get(product_id)
+                if product:
+                    new_order_product = OrderProduct(order_id=new_order.id, product_id=product_id)
+                    db.session.add(new_order_product)
+                else:
+                    return {"errors": ["Product not found"]}, 400
+
             db.session.commit()
             return make_response(new_order.to_dict(), 201)
-        except ValueError:
-            return make_response({"errors": ["Validation errors"]}, 400)
+        except Exception as e:
+            return {"errors": [str(e)]}, 400
 api.add_resource(Orders, '/orders')
 
 
@@ -189,8 +227,8 @@ class OrdersById(Resource):
         order = Order.query.filter_by(id=id).first()
         if not order:
             return make_response({"error": ["Order not found"]}, 404)
-        order_to_dict = order.to_dict()
-        return make_response(order_to_dict, 200)
+        order_dict = order.to_dict()
+        return make_response(order_dict, 200)
 
     def patch(self, id):
         order = Order.query.filter_by(id=id).first()
@@ -201,7 +239,7 @@ class OrdersById(Resource):
                 setattr(order, attr, request.json[attr])
             db.session.add(order)
             db.session.commit()
-            return make_response(order_to_dict(only = ('id', 'user_id', 'status', 'order_products')), 202)
+            return make_response(order.to_dict(only = ('id', 'user_id', 'status', 'order_products')), 202)
         except ValueError:
             return make_response({"errors": ["Validation errors"]}, 400)
 
@@ -221,13 +259,20 @@ class OrderProducts(Resource):
         return make_response(order_products, 200)
 
     def post(self):
-        try:
-            new_order_product = Order_product()
+         try:
+            order_id = request.json.get('order_id')
+            product_id = request.json.get('product_id')
+
+            if not order_id or not product_id:
+                return {"errors": ["Missing order_id or product_id"]}, 400
+
+            # Create the association between the order and the product
+            new_order_product = OrderProduct(order_id=order_id, product_id=product_id)
             db.session.add(new_order_product)
             db.session.commit()
             return make_response(new_order_product.to_dict(), 201)
-        except ValueError:
-            return make_response({"errors": ["Validation errors"]}, 400)
+         except Exception as e:
+            return {"errors": [str(e)]}, 400
 
 api.add_resource(OrderProducts, '/order_products')
 
@@ -237,8 +282,8 @@ class OrderProductsById(Resource):
         order_product = Order_product.query.filter_by(id=id).first()
         if not order_product:
             return make_response({"error": ["Order_product not found"]}, 404)
-        order_product_to_dict = order_product.to_dict(serialize_only = ('id', 'order_id', 'product_id'))
-        return make_response(order_product_to_dict, 200)
+        order_product_dict = order_product.to_dict()
+        return make_response(order_product_dict, 200)
 
     def patch(self, id):
         order_product = Order_product.query.filter_by(id=id).first()
@@ -249,7 +294,8 @@ class OrderProductsById(Resource):
                 setattr(order_product, attr, request.json[attr])
             db.session.add(order_product)
             db.session.commit()
-            return make_response(order_product_to_dict(serialize_only = ('id', 'order_id', 'product_id')), 202)
+            order_product_dict = order_product.to_dict()
+            return make_response(order_product_dict, 202)
         except ValueError:
             return make_response({"errors": ["Validation errors"]}, 400)
 
@@ -260,7 +306,6 @@ class OrderProductsById(Resource):
         db.session.delete(order_product)
         db.session.commit()
         return make_response({}, 204)
-
 api.add_resource(OrderProductsById, '/order_products/<int:id>')
 
 
@@ -271,16 +316,29 @@ class Reviews(Resource):
 
     def post(self):
         try:
+            comments = request.json['comments']
+            user_id = request.json['user_id']
+            product_id = request.json['product_id']
+
+            # Check if the user and product actually exist in the database
+            user = User.query.get(user_id)
+            product = Product.query.get(product_id)
+
+            if not user or not product:
+                return {"errors": ["User or Product not found"]}, 400
+
             new_review = Review(
-                comments=request.json['comments'],
-                user_id=request.json['user_id'],
-                product_id=request.json['product_id']
+                comments=comments,
+                user_id=user_id,
+                product_id=product_id
             )
+
             db.session.add(new_review)
             db.session.commit()
             return make_response(new_review.to_dict(), 201)
-        except ValueError:
-            return {"errors": ["Validation errors"]}, 400
+        except Exception as e:
+            return {"errors": [str(e)]}, 400
+
 api.add_resource(Reviews, '/reviews')
 
 
@@ -289,8 +347,8 @@ class ReviewsById(Resource):
         review = Review.query.filter_by(id=id).first()
         if not review:
             return make_response({"error": ["Review not found"]}, 404)
-        review_to_dict = review.to_dict(serialize_only = ('id', 'comments', 'user_id', 'product_id'))
-        return make_response(review_to_dict, 200)
+        review_dict = review.to_dict(only=('id', 'comments', 'user_id', 'product_id'))
+        return make_response(review_dict, 200)
 
     def patch(self, id):
         review = Review.query.filter_by(id=id).first()
@@ -301,9 +359,11 @@ class ReviewsById(Resource):
                 setattr(review, attr, request.json[attr])
             db.session.add(review)
             db.session.commit()
-            return make_response(review_to_dict(serialize_only = ('id', 'comments', 'user_id', 'product_id')), 202)
+            review_dict = review.to_dict(only=('id', 'comments', 'user_id', 'product_id'))
+            return make_response(review_dict, 202)
         except ValueError:
             return make_response({"errors": ["Validation errors"]}, 400)
+
 
     def delete(self, id):
         review = Review.query.filter_by(id=id).first()
@@ -313,6 +373,15 @@ class ReviewsById(Resource):
         db.session.commit()
         return make_response({}, 204)
 api.add_resource(ReviewsById, '/reviews/<int:id>')
+
+class ReviewsByProduct(Resource):
+    def get(self, product_id):
+        reviews = [review.to_dict(only=('id', 'comments', 'user_id', 'product_id'))
+                   for review in Review.query.filter_by(product_id=product_id).all()]
+        return make_response(reviews, 200)
+
+api.add_resource(ReviewsByProduct, '/reviews/product/<int:product_id>')
+
 
 class Login(Resource):
     def post(self):
@@ -392,6 +461,4 @@ if __name__ == '__main__':
 
 
 
-if __name__ == '__main__':
-    app.run(port=5555, debug=True)
 

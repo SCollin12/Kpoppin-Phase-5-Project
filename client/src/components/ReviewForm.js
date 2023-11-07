@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import './ProductList.css'
 
 const ReviewForm = () => {
   const [reviews, setReviews] = useState([]);
@@ -12,16 +13,20 @@ const ReviewForm = () => {
   }, []);
 
   const handleAddReview = () => {
-    fetch('/reviews', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ comments: newReview, user_id: 1, product_id: 1 }),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        setReviews([...reviews, data]);
-        setNewReview('');
-      });
+    if (newReview.length >= 10) {
+      fetch('/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comments: newReview, user_id: 1, product_id: 1 }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          setReviews([...reviews, data]);
+          setNewReview('');
+        });
+    } else {
+      alert('Review must be at least 10 characters long.');
+    }
   };
 
   const handleEditReview = (id, text) => {
@@ -29,21 +34,25 @@ const ReviewForm = () => {
   };
 
   const handleSaveReview = (id) => {
-    fetch(`/reviews/${id}`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ comments: editReview.text }),
-    })
-      .then(() => {
-        const updatedReviews = reviews.map((review) => {
-          if (review.id === id) {
-            review.comments = editReview.text;
-          }
-          return review;
+    if (editReview.text.length >= 10) {
+      fetch(`/reviews/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comments: editReview.text }),
+      })
+        .then(() => {
+          const updatedReviews = reviews.map((review) => {
+            if (review.id === id) {
+              review.comments = editReview.text;
+            }
+            return review;
+          });
+          setReviews(updatedReviews);
+          setEditReview({ id: null, text: '' });
         });
-        setReviews(updatedReviews);
-        setEditReview({ id: null, text: '' });
-      });
+    } else {
+      alert('Review must be at least 10 characters long.');
+    }
   };
 
   const handleDeleteReview = (id) => {
@@ -83,7 +92,7 @@ const ReviewForm = () => {
           type="text"
           value={newReview}
           onChange={(e) => setNewReview(e.target.value)}
-          placeholder="Write a new review"
+          placeholder="Leave Us A Review :)"
         />
         <button onClick={handleAddReview}>Add Review</button>
       </div>
@@ -93,3 +102,20 @@ const ReviewForm = () => {
 
 export default ReviewForm;
 
+
+// const handleAddReview = () => {
+//   if (newReview.length >= 10) {
+//     fetch('/reviews', {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({ comments: newReview, user_id: loggedInUserId, product_id: viewedProductId }),
+//     })
+//       .then((response) => response.json())
+//       .then((data) => {
+//         setReviews([...reviews, data]);
+//         setNewReview('');
+//       });
+//   } else {
+//     alert('Review must be at least 10 characters long.');
+//   }
+// };
