@@ -1,31 +1,148 @@
 import React, { useEffect, useState } from 'react';
+import { Card, Button, Row, Col, Modal } from 'antd';
+import './ProductList.css';
+import Cart from './Cart'; // Import the Cart component
+import ProductForm from './ProductForm'; // Import the ProductForm component
 
 const ProductList = () => {
   const [products, setProducts] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [hoveredProduct, setHoveredProduct] = useState(null);
+  const [showKpop, setShowKpop] = useState(true);
+  const [cart, setCart] = useState([]); // State to manage the cart
+  const [productReviews, setProductReviews] = useState([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [cartVisible, setCartVisible] = useState(false); // State to manage the cart visibility
+
+  // Use an object to track the "Added" state for each product
+  const [addedToCartMap, setAddedToCartMap] = useState({});
 
   useEffect(() => {
-    fetch('/products') 
+    fetch('/products')
       .then((response) => response.json())
       .then((data) => {
         setProducts(data);
       });
   }, []);
 
+  const handleProductSelect = (product) => {
+    setSelectedProduct(product);
+    setModalVisible(true);
+
+    // Fetch reviews associated with the selected product
+    fetch(`/reviews/product/${product.id}`)
+      .then((response) => response.json())
+      .then((data) => {
+        setProductReviews(data);
+      });
+  };
+
+  const toggleProducts = () => {
+    setShowKpop(!showKpop);
+  };
+
+  const handleAddToCart = (product) => {
+    // Add the selected product to the cart
+    setCart([...cart, product]);
+
+    // Set the "Added" state to true for this product
+    setAddedToCartMap({
+      ...addedToCartMap,
+      [product.id]: true,
+    });
+  };
+
+  const handleRemoveFromCart = (productId) => {
+    // Remove the selected product from the cart
+    setCart(cart.filter((item) => item.id !== productId));
+
+    // Reset the "Added" state for this product
+    setAddedToCartMap({
+      ...addedToCartMap,
+      [productId]: false,
+    });
+  };
+
+  const filteredProducts = showKpop
+    ? products.filter((product) => product.type === 'kpop')
+    : products.filter((product) => product.type === 'anime');
+
   return (
     <div>
+      <div style={{ position: 'relative', textAlign: 'right' }}>
+        <Button onClick={() => setCartVisible(true)}>View Cart</Button>
+      </div>
       <h2>Products</h2>
-      <ul>
-        {products.map((product) => (
-          <li key={product.id}>
-            {product.name} - {product.price}
-          </li>
+      <Button onClick={toggleProducts}>
+        {showKpop ? 'Show Anime Products' : 'Show K-pop Products'}
+      </Button>
+
+      <Row gutter={16}>
+        {filteredProducts.map((product) => (
+          <Col key={product.id} span={6}>
+            <div
+              className="product-card"
+              onMouseEnter={() => setHoveredProduct(product)}
+              onMouseLeave={() => setHoveredProduct(null)}
+            >
+              <div className="card-image" onClick={() => handleProductSelect(product)}>
+                <img alt={product.name} src={product.image_url} />
+              </div>
+              <div className="card-details">
+                {hoveredProduct === product && (
+                  <div className="product-tooltip">
+                    <p>Price: {product.price}</p>
+                    <p>Release Date: {product.release_date}</p>
+                    <p>Description: {product.description}</p>
+                  </div>
+                )}
+              </div>
+              <Button
+                onClick={() => handleAddToCart(product)}
+                disabled={addedToCartMap[product.id]} // Disable the button if the product is added
+              >
+                {addedToCartMap[product.id] ? 'Added' : 'Add to Cart'}
+              </Button>
+            </div>
+          </Col>
         ))}
-      </ul>
+      </Row>
+
+      {/* Add new product form */}
+      <ProductForm />
+
+      {/* Modal for displaying additional product information */}
+      <Modal
+        title={selectedProduct ? selectedProduct.name : ''}
+        visible={modalVisible}
+        onCancel={() => setModalVisible(false)}
+        footer={null}
+      >
+        {selectedProduct && (
+          <div>
+            <p>Price: {selectedProduct.price}</p>
+            <p>Release Date: {selectedProduct.release_date}</p>
+            <p>Description: {selectedProduct.description}</p>
+            <Button
+              onClick={() => handleAddToCart(selectedProduct)}
+              disabled={addedToCartMap[selectedProduct.id]}
+            >
+              {addedToCartMap[selectedProduct.id] ? 'Added' : 'Add to Cart'}
+            </Button>
+            <h3>Product Reviews</h3>
+            <ul>
+              {productReviews.map((review) => (
+                <li key={review.id}>{review.comments}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </Modal>
+
+      {/* Cart component */}
+      <Cart visible={cartVisible} onClose={() => setCartVisible(false)} cartItems={cart} removeFromCart={handleRemoveFromCart} />
     </div>
   );
 };
 
 export default ProductList;
-
-
-
