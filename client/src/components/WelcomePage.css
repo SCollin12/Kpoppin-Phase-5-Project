@@ -1,16 +1,22 @@
-/* In your WelcomePage.css file */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
 .welcome-container {
-    text-align: center;
-    padding: 20px;
-    background: linear-gradient(to bottom, #808080, #ADD8E6, #FFFF00);
-    height: 100vh; /* This sets the container to cover the full viewport height */
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  .welcome-image {
-    width: 100px; /* Adjust the width as needed */
-    height: auto; /* Automatically adjust the height to maintain the aspect ratio */
-  }
-  
+  background: linear-gradient(to bottom, #808080, #ADD8E6, #FFFF00);
+  height: 100vh; /* Set the container's height to cover the viewport vertically */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+
+.welcome-image {
+  width: 100px;
+  height: auto;
+}

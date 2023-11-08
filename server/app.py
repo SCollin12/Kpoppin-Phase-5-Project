@@ -7,6 +7,7 @@ from models import User, Product, Order, Order_product, Review
 from flask_restful import Api, Resource
 from flask import Flask, make_response, jsonify, request, session
 from flask_migrate import Migrate
+from sqlalchemy.exc import SQLAlchemyError
 import os
 from flask_bcrypt import Bcrypt
 from faker import Faker
@@ -104,6 +105,17 @@ class UsersById(Resource):
         return make_response({}, 204)
 api.add_resource(UsersById, '/users/<int:id>')
 
+class UserDetails(Resource):
+    def get(self, id):
+        user = User.query.get(id)
+        if not user:
+            return make_response({"error": ["User not found"]}, 404)
+        user_dict = user.to_dict(only=('id', 'username', 'email'))
+        return make_response(user_dict, 200)
+
+api.add_resource(UserDetails, '/users/<int:id>')
+
+
 class Products(Resource):
     def get(self):
         products = [product.to_dict(only=('id', 'name', 'description', 'price', 'release_date', 'image_url', 'type')) for product in Product.query.all()]
@@ -189,31 +201,46 @@ class ProductsById(Resource):
 
 api.add_resource(ProductsById, '/products/<int:id>')
 
+class ProductDetails(Resource):
+    def get(self, id):
+        product = Product.query.get(id)
+        if not product:
+            return make_response({"error": ["Product not found"]}, 404)
+        product_dict = product.to_dict(only=('id', 'name', 'description', 'price', 'release_date', 'image_url', 'type'))
+        return make_response(product_dict, 200)
+
+api.add_resource(ProductDetails, '/products/<int:id>')
+
+
 class Orders(Resource):
     def get(self):
         orders = [order.to_dict(only = ('id', 'user_id', 'status', 'order_products')) for order in Order.query.all()]
         return make_response(orders, 200)
 
-def post(self):
+    def post(self):
         try:
-        
             user_id = request.json.get('user_id')
             product_ids = request.json.get('product_ids')
 
             if not user_id or not product_ids:
                 return {"errors": ["Missing user_id or product_ids"]}, 400
 
-    
+            user = User.query.get(user_id)
+            if not user:
+                return {"errors": ["User not found"]}, 400
+
             new_order = Order(user_id=user_id)
             db.session.add(new_order)
 
             for product_id in product_ids:
                 product = Product.query.get(product_id)
-                if product:
-                    new_order_product = OrderProduct(order_id=new_order.id, product_id=product_id)
-                    db.session.add(new_order_product)
-                else:
+                if not product:
                     return {"errors": ["Product not found"]}, 400
+
+                order_product = Order_product.query.filter_by(order_id=new_order.id, product_id=product_id).first()
+                if not order_product:
+                    new_order_product = Order_product(order_id=new_order.id, product_id=product_id)
+                    db.session.add(new_order_product)
 
             db.session.commit()
             return make_response(new_order.to_dict(), 201)
