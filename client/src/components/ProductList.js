@@ -17,6 +17,10 @@ const ProductList = () => {
   // Use an object to track the "Added" state for each product
   const [addedToCartMap, setAddedToCartMap] = useState({});
 
+  const handleProductAdded = (newProduct) => {
+    setProducts([...products, newProduct]);
+  };
+
   useEffect(() => {
     fetch('/products')
       .then((response) => response.json())
@@ -63,19 +67,24 @@ const ProductList = () => {
     });
   };
 
+  const handleClearCart = () => {
+    setCart([]);
+    setAddedToCartMap({});
+   };
+
   const filteredProducts = showKpop
     ? products.filter((product) => product.type === 'kpop')
     : products.filter((product) => product.type === 'anime');
 
-  return (
-    <div>
-      <div style={{ position: 'relative', textAlign: 'right' }}>
-        <Button onClick={() => setCartVisible(true)}>View Cart</Button>
-      </div>
-      <h2>Products</h2>
-      <Button onClick={toggleProducts}>
-        {showKpop ? 'Show Anime Products' : 'Show K-pop Products'}
-      </Button>
+    return (
+      <div style={showKpop ? { background: 'linear-gradient(to right, #006400, #90EE90)' } : { background: 'linear-gradient(to right, darkred, black)' }}>
+        <div style={{ position: 'relative', textAlign: 'center' }}>
+          <Button onClick={() => setCartVisible(true)} style={{ position: 'absolute', top: '10px', right: '10px' }}>View Cart</Button>
+        </div>
+        <h2 style={{ textAlign: 'center', fontSize: '36px' }}>November's Inventory </h2>
+        <Button onClick={toggleProducts} style={{ fontSize: '18px' }}>
+          {showKpop ? 'Show Anime Products' : 'Show K-pop Products'}
+        </Button>
 
       <Row gutter={16}>
         {filteredProducts.map((product) => (
@@ -109,7 +118,7 @@ const ProductList = () => {
       </Row>
 
       {/* Add new product form */}
-      <ProductForm />
+      <ProductForm onProductAdded={handleProductAdded} />
 
       {/* Modal for displaying additional product information */}
       <Modal
@@ -140,7 +149,7 @@ const ProductList = () => {
       </Modal>
 
       {/* Cart component */}
-      <Cart visible={cartVisible} onClose={() => setCartVisible(false)} cartItems={cart} removeFromCart={handleRemoveFromCart} />
+      <Cart visible={cartVisible} onClose={() => setCartVisible(false)} cartItems={cart} removeFromCart={handleRemoveFromCart} clearCart={handleClearCart} />
     </div>
   );
 };

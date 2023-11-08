@@ -1,46 +1,30 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { Form, Input, Button } from 'antd';
+import { useAuth } from './AuthContext';  // Import the useAuth hook
 
 const Login = () => {
-  const [loginForm, setLoginForm] = useState({
-    username: '',
-    password: '',
-  });
-
+  const [form] = Form.useForm();
   const [loginError, setLoginError] = useState('');
+  const { setIsUserLoggedIn } = useAuth();  // Get the setIsUserLoggedIn function
 
   const history = useHistory();
 
-  const handleLoginChange = (e) => {
-    const name = e.target.name;
-    const value = e.target.value;
-    setLoginForm({
-      ...loginForm,
-      [name]: value,
-    });
-  };
-
-  const handleLoginSubmit = (event) => {
-    event.preventDefault(); // Prevent the default form submission
-
+  const handleLoginSubmit = async (values) => {
     fetch('/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(loginForm),
+      body: JSON.stringify(values),
     })
       .then((res) => {
         if (res.status === 201) {
-          return res.json();
+          return res.json().then((data) => {
+            setIsUserLoggedIn(true);  // Set isUserLoggedIn to true
+            history.push('/products');
+          });
         } else if (res.status === 400) {
           setLoginError('Username or password is incorrect');
           return Promise.reject('Authentication failed');
-        }
-      })
-      .then((data) => {
-        // Check if the response data contains the user data
-        if (data.id) {
-          // Redirect to the desired page upon successful login
-          history.push('/products'); // Replace 'desired-page' with your target route
         }
       })
       .catch((error) => {
@@ -49,35 +33,28 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div style={{ 
+      background: 'linear-gradient(to bottom, #0072ff, lightpink)', 
+      padding: '40px', 
+      borderRadius: '10px',
+      width: '100%',
+      maxWidth: '500px'  // Limit the width of the form
+    }}>
       <h2>Login</h2>
-      <form onSubmit={handleLoginSubmit}>
-        <div>
-          <label htmlFor="username">Username</label>
-          <input
-            type="text"
-            name="username"
-            value={loginForm.username}
-            onChange={handleLoginChange}
-          />
-        </div>
-        <div>
-          <label htmlFor="password">Password</label>
-          <input
-            type="password"
-            name="password"
-            value={loginForm.password}
-            onChange={handleLoginChange}
-          />
-        </div>
-        <div>
-          <button type="submit">Login</button>
-        </div>
-      </form>
+      <Form form={form} onFinish={handleLoginSubmit} style={{ width: '100%' }}>
+        <Form.Item label="Username" name="username" rules={[{ required: true, message: 'Please input your username!' }]}>
+          <Input placeholder="Username" />
+        </Form.Item>
+        <Form.Item label="Password" name="password" rules={[{ required: true, message: 'Please input your password!' }]}>
+          <Input.Password placeholder="Password" />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">Login</Button>
+        </Form.Item>
+      </Form>
       {loginError && <p style={{ color: 'red' }}>{loginError}</p>}
     </div>
   );
 };
 
 export default Login;
-

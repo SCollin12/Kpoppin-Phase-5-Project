@@ -1,57 +1,73 @@
 import React, { useState, useEffect } from 'react';
+import { Table } from 'antd';
 
 const OrderList = () => {
-  const [orders, setOrders] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
+ const [orders, setOrders] = useState([]);
+ const [isLoading, setIsLoading] = useState(true);
+ const [productDetails, setProductDetails] = useState([]);
+ const [isProductLoading, setIsProductLoading] = useState(true);
 
-  useEffect(() => {
-    // Fetch a list of orders from your Flask API
-    fetch('/orders')
-      .then((response) => response.json())
-      .then((data) => {
-        setOrders(data);
-        setIsLoading(false);
-      });
-  }, []);
+ useEffect(() => {
+   fetch('/orders')
+     .then((response) => response.json())
+     .then((data) => {
+       setOrders(data);
+       setIsLoading(false);
+     });
+ }, []);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+ useEffect(() => {
+   fetch('/products')
+     .then((response) => response.json())
+     .then((data) => {
+       setProductDetails(data);
+       setIsProductLoading(false);
+     });
+ }, []);
 
-  return (
-    <div>
-      <h2>Order List</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>User ID</th>
-            <th>Status</th>
-            <th>Products</th>
-          </tr>
-        </thead>
-        <tbody>
-          {orders.map((order) => (
-            <tr key={order.id}>
-              <td>{order.id}</td>
-              <td>{order.user_id}</td>
-              <td>{order.status}</td>
-              <td>
-                <ul>
-                  {order.order_products.map((orderProduct) => (
-                    <li key={orderProduct.id}>
-                      Product ID: {orderProduct.product_id}
-                      {/* You can fetch and display more product information here */}
-                    </li>
-                  ))}
-                </ul>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+ if (isLoading || isProductLoading) {
+   return <div>Loading...</div>;
+ }
+
+ const columns = [
+   {
+     title: 'Order ID',
+     dataIndex: 'id',
+   },
+   {
+     title: 'User ID',
+     dataIndex: 'user_id',
+   },
+   {
+     title: 'Status',
+     dataIndex: 'status',
+   },
+   {
+    title: 'Products',
+    dataIndex: 'order_products',
+    render: (orderProducts) => (
+      <ul>
+        {orderProducts.map((orderProduct) => {
+          const product = productDetails.find(
+            (product) => product.id === orderProduct.product_id
+          );
+          return (
+            <li key={orderProduct.id}>
+              Product Name: {product ? product.name : 'N/A'}
+            </li>
+          );
+        })}
+      </ul>
+    ),
+  },
+];
+
+return (
+  <div style={{ background: 'linear-gradient(to right, darkgrey, lightgrey, white)' }}>
+    <h2>Customer Orders "From Sept 2023 - Nov -2023 *Admin Use Only*</h2>
+    <Table columns={columns} dataSource={orders} />
+  </div>
+);
 };
 
 export default OrderList;

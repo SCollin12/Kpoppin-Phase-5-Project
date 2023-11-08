@@ -1,113 +1,70 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Form, Input, Button, Select, DatePicker } from 'antd';
 
-const ProductForm = () => {
-  const [productForm, setProductForm] = useState({
-    name: '',
-    description: '',
-    price: '',
-    release_date: '',
-    image_url: '',
-    type: '',
-  });
-
-  const handleFormChange = (name, value) => {
-    setProductForm((prevProductForm) => ({
-      ...prevProductForm,
-      [name]: value,
-    }));
-  };
+const ProductForm = (props) => {
+    const [form] = Form.useForm();
   
-  const handleFormSubmit = (event) => {
-    console.log('Sending data to the server: ', productForm);
-    event.preventDefault();
-
-
-    // Send a POST request to add the product to the database
-    fetch('/products', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(productForm),
-    })
+    const handleFormSubmit = async () => {
+      const productForm = form.getFieldsValue();
+      console.log('Sending data to the server: ', productForm);
+  
+      fetch('/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productForm),
+      })
       .then((res) => {
         if (res.status === 201) {
-            console.log('Response status:', res.status);
-          // Product added successfully, you can perform further actions here
+          console.log('Response status:', res.status);
+          res.json().then((newProduct) => {
+            props.onProductAdded(newProduct);
+          });
         } else {
-            console.error('Product addition failed');
-          // Handle errors
+          console.error('Product addition failed');
         }
       })
       .catch((error) => {
         console.error('Error adding product', error);
       });
-  };
+  
+      // Reset the form fields
+      form.resetFields();
+    };
+  
+  
 
   return (
     <div>
-      <h2>Add Product</h2>
-      <form onSubmit={handleFormSubmit}>
-        <div>
-          <label htmlFor="name">Name</label>
-          <input
-            type="text"
-            name="name"
-            value={productForm.name}
-            onChange={(e) => handleFormChange('name', e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="description">Description</label>
-          <input
-            type="text"
-            name="description"
-            value={productForm.description}
-            onChange={(e) => handleFormChange('description', e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="price">Price</label>
-          <input
-            type="number"
-            name="price"
-            value={productForm.price}
-            onChange={(e) => handleFormChange('price', e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="release_date">Release Date</label>
-          <input
-            type="date"
-            name="release_date"
-            value={productForm.release_date}
-            onChange={(e) => handleFormChange('release_date', e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="image_url">Image URL</label>
-          <input
-            type="text"
-            name="image_url"
-            value={productForm.image_url}
-            onChange={(e) => handleFormChange('image_url', e.target.value)}
-          />
-        </div>
-        <div>
-          <label htmlFor="type">Type</label>
-          <select
-            name="type"
-            value={productForm.type}
-            onChange={(e) => handleFormChange('type', e.target.value)}
-          >
-            <option value="kpop">K-pop</option>
-            <option value="anime">Anime</option>
-          </select>
-        </div>
-        <div>
-          <button type="submit">Add Product</button>
-        </div>
-      </form>
+      <h2>Add Product To Inventory *Admin Use Only*</h2>
+      <Form form={form} onFinish={handleFormSubmit}>
+        <Form.Item label="Name" name="name" rules={[{ required: true, message: 'Please input the product name!' }]}>
+          <Input placeholder="Product Name" />
+        </Form.Item>
+        <Form.Item label="Description" name="description" rules={[{ required: true, message: 'Please input the product description!' }]}>
+          <Input placeholder="Product Description" />
+        </Form.Item>
+        <Form.Item label="Price" name="price" rules={[{ required: true, message: 'Please input the product price!' }]}>
+          <Input placeholder="Product Price" />
+        </Form.Item>
+        <Form.Item label="Release Date" name="release_date" rules={[{ required: true, message: 'Please input the product release date!' }]}>
+          <DatePicker placeholder="Product Release Date" />
+        </Form.Item>
+        <Form.Item label="Image URL" name="image_url" rules={[{ required: true, message: 'Please input the product image URL!' }]}>
+          <Input placeholder="Product Image URL" />
+        </Form.Item>
+        <Form.Item label="Type" name="type" rules={[{ required: true, message: 'Please select the product type!' }]}>
+          <Select placeholder="Product Type">
+            <Select.Option value="kpop">K-pop</Select.Option>
+            <Select.Option value="anime">Anime</Select.Option>
+          </Select>
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">Add Product</Button>
+        </Form.Item>
+      </Form>
     </div>
   );
 };
 
 export default ProductForm;
+
